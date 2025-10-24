@@ -7,14 +7,10 @@ const increment = () => number.value++
 </script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <h1>Increment Counter. You Know</h1>
 
-  <button @click="increment">Типо счётчик: {{ number }} код </button>
-     <h1> hello</h1>
+  <button @click="increment">Типо chicken: {{ number }}</button><br/>
+  <button @click="number=0">Clear counter</button>
 </template>
 
 <style scoped></style>
