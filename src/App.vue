@@ -13,7 +13,7 @@ const increment = () => number.value++
     documentation
   </p>
 
-  <button @click="increment">Типо счётчик: {{ number }}</button>
+  <button @click="increment">Типо счётчик: {{ number }} код </button>
      <h1> hello</h1>
 </template>
 
