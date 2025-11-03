@@ -41,6 +41,9 @@ const editTask = function(taskItem) {
   taskIndex = tasks.value.indexOf(taskItem)
 }
 const saveEditedTask = function() {
+  if ( !editedTask.title.trim().length || !editedTask.body.trim().length ) {
+    return
+  }
   isPopupActive.value = false;
   tasks.value[taskIndex].title = editedTask.title;
   tasks.value[taskIndex].body = editedTask.body;
@@ -58,12 +61,13 @@ const deleteTask = function(task) {
   <div class="task-manager">
     <div v-if="isPopupActive" @click="isPopupActive = false" class="task-edit-popup">
       <div @click.stop class="edit-task-form">
-        <input v-model="editedTask.title" type="text" class="task-title" placeholder="Заголовок">
-        <textarea v-model="editedTask.body" name="task-body" id="edit-task-body" class="task-body" placeholder="Содержание"></textarea>
+        {{ console.log(editedTask.title.length) }}
+        <input :class="{ 'border-red' : !editedTask.title.length }" v-model="editedTask.title" type="text" class="task-title" placeholder="Заголовок" name="edit-title">
+        <textarea :class="{ 'border-red' : !editedTask.body.length }" v-model="editedTask.body" name="task-body" id="edit-task-body" class="task-body" placeholder="Содержание"></textarea>
         <div  v-if="errorsList != []" class="errors-wrapper">
           <div v-for="error in errorsList" :key="error" class="error-item">{{ error }}</div>
         </div>
-        <button @click="saveEditedTask" class="task-btn">Создать</button>
+        <button @click="saveEditedTask" :class="{ 'background-gray' : !editedTask.title.trim().length || !editedTask.body.trim().length}" class="task-btn">Создать</button>
     </div>
     </div>
     <div class="task-form">
@@ -104,6 +108,7 @@ const deleteTask = function(task) {
 ul {
   list-style-type: none;
 }
+/* ---------------- */
 .task-manager {
   display: flex;
   flex-direction: column;
@@ -187,5 +192,15 @@ ul {
 .task-edit>svg, .task-delete>svg {
   width: 20px;
   height: auto;
+}
+.task-delete path {
+  fill: rgb(255, 80, 80);
+}
+/* ------------------ */
+.border-red {
+  border-color: red;
+}
+.background-gray {
+  background-color: gray;
 }
 </style>
