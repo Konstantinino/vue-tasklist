@@ -6,8 +6,24 @@ const task = reactive({
   title: '',
   body: ''
 })
+const errorsList = ref([])
+const isPopupActive = ref(false)
+const editedTask = reactive({
+  title: '',
+  body: ''
+})
+let taskIndex;
 
 const addTask = function() {
+  errorsList.value = []
+  if (task.title.trim() == '') {
+    errorsList.value.unshift('Ошибка, нужен заголовок!')
+    return
+  }
+  if (task.body.trim() == '') {
+    errorsList.value.unshift('Ошибка, нужно содержание!')
+    return
+  }
   tasks.value.unshift({
     title: task.title,
     body: task.body
@@ -18,7 +34,21 @@ const addTask = function() {
     body: ''
   })
 }
-
+const editTask = function(taskItem) {
+  isPopupActive.value = true;
+  editedTask.title = taskItem.title;
+  editedTask.body = taskItem.body;
+  taskIndex = tasks.value.indexOf(taskItem)
+}
+const saveEditedTask = function() {
+  isPopupActive.value = false;
+  tasks.value[taskIndex].title = editedTask.title;
+  tasks.value[taskIndex].body = editedTask.body;
+  Object.assign(editedTask, {
+    title: '',
+    body: ''
+  })
+}
 const deleteTask = function(task) {
   tasks.value = tasks.value.filter((item => item != task))
 }
@@ -26,10 +56,23 @@ const deleteTask = function(task) {
 
 <template>
   <div class="task-manager">
+    <div v-if="isPopupActive" @click="isPopupActive = false" class="task-edit-popup">
+      <div @click.stop class="edit-task-form">
+        <input v-model="editedTask.title" type="text" class="task-title" placeholder="Заголовок">
+        <textarea v-model="editedTask.body" name="task-body" id="edit-task-body" class="task-body" placeholder="Содержание"></textarea>
+        <div  v-if="errorsList != []" class="errors-wrapper">
+          <div v-for="error in errorsList" :key="error" class="error-item">{{ error }}</div>
+        </div>
+        <button @click="saveEditedTask" class="task-btn">Создать</button>
+    </div>
+    </div>
     <div class="task-form">
       <input v-model="task.title" type="text" class="task-title" placeholder="Заголовок">
-      <textarea v-model="task.body" name="task-body" id="" class="task-body" placeholder="Содержание"></textarea>
-      <button @click="addTask" class="task-btn">Создать</button>
+      <textarea v-model="task.body" name="task-body" id="task-body" class="task-body" placeholder="Содержание"></textarea>
+      <div  v-if="errorsList != []" class="errors-wrapper">
+        <div v-for="error in errorsList" :key="error" class="error-item">{{ error }}</div>
+      </div>
+        <button @click="addTask" class="task-btn">Создать</button>
     </div>
     <ul v-if="tasks.length>0" class="task-list">
       <li v-for="task in tasks" class="task-item" :key="task">
@@ -38,7 +81,7 @@ const deleteTask = function(task) {
           <p class="task-item-body">{{ task.body }}</p>
         </div>
         <div class="task-controlers">
-          <div class="task-edit">
+          <div @click="editTask(task)" class="task-edit">
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 24 24">
               <path d="M10.107 6.292l-6.704 9.766c-.128.187-.203.404-.217.631l-.183 2.984c-.027.438.178.858.54 1.106C3.754 20.926 4.001 21 4.25 21c.177 0 .354-.037.52-.113l2.719-1.243C7.695 19.55 7.872 19.401 8 19.214l6.704-9.765L10.107 6.292zM16.118 7.388l1.147-1.671c.213-.311.275-.701.167-1.062-.037-.123-.388-1.226-1.468-1.968S13.729 2.012 13.6 2.022c-.375.03-.718.228-.932.539l-1.147 1.67L16.118 7.388zM19.25 18.5A1.25 1.25 0 1019.25 21 1.25 1.25 0 1019.25 18.5zM15.25 18.5A1.25 1.25 0 1015.25 21 1.25 1.25 0 1015.25 18.5zM11.25 18.5A1.25 1.25 0 1011.25 21 1.25 1.25 0 1011.25 18.5z"></path>
             </svg>
@@ -66,8 +109,19 @@ ul {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  position: relative;
 }
-.task-form {
+.task-edit-popup {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all .3s;
+}
+.task-form, .edit-task-form {
   display: flex;
   flex-direction: column;
   padding: 20px 50px;
@@ -75,6 +129,10 @@ ul {
   border: 1px solid #f0f0f0;
   border-radius: 5px;
   margin-bottom: 10px;
+  background-color: #fff;
+}
+.edit-task-form {
+  padding: 50px;
 }
 .task-title, .task-body {
   padding: 5px;
@@ -82,6 +140,12 @@ ul {
   border-bottom: 1px solid #cccccc;
   font-size: 15px;
   margin-bottom: 15px;
+}
+.errors-wrapper {
+  margin-bottom: 10px;
+}
+.error-item {
+  color: rgb(250, 77, 77);
 }
 .task-btn {
   width: 100px;
